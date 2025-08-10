@@ -33,6 +33,16 @@ docker-compose up --build
 php bin/console app:fetch-external-jobs
 ```
 
-### 5. Visit the application
+### 6. Run DB migration
+```bash
+php bin/console d:m:m
+```
+
+### 7. Run DB fixtures
+```bash
+php bin/console d:f:l
+```
+
+### 8. Visit the application
 
 Your application will be available at `http://localhost:8080`
