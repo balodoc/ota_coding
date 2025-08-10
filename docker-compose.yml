@@ -1,0 +1,40 @@
+version: "3.8"
+
+services:
+    web:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        ports:
+            - "8080:80"
+        volumes:
+            - .:/var/www/html
+        depends_on:
+            - db
+        environment:
+            - APP_ENV=dev
+            - APP_DEBUG=1
+        networks:
+            - symfony
+
+    db:
+        image: mariadb:10.11
+        restart: unless-stopped
+        environment:
+            MYSQL_ROOT_PASSWORD: root
+            MYSQL_DATABASE: ota
+            MYSQL_USER: ota
+            MYSQL_PASSWORD: ota
+        ports:
+            - "3307:3306"
+        volumes:
+            - db_data:/var/lib/mysql
+            - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+        networks:
+            - symfony
+
+volumes:
+    db_data:
+
+networks:
+    symfony:

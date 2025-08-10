@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Job Board{% endblock %}</title>
+    <style>
+        body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica, Arial, sans-serif; margin: 2rem; }
+        nav a { margin-right: 1rem; }
+        .flash-success { background: #e6ffed; border: 1px solid #34d058; padding: .5rem 1rem; margin-bottom: 1rem; }
+        .flash-error { background: #ffeef0; border: 1px solid #d73a49; padding: .5rem 1rem; margin-bottom: 1rem; }
+        .card { border: 1px solid #ddd; border-radius: 8px; padding: 1rem; margin-bottom: 1rem; }
+        .muted { color: #666; }
+    </style>
+    {% block head %}{% endblock %}
+    {% block styles %}{% endblock %}
+    {% block scripts_head %}{% endblock %}
+    {% block meta %}{% endblock %}
+</head>
+<body>
+<nav>
+    <a href="{{ path('jobs_index') }}">Jobs</a>
+    {% if is_granted('ROLE_POSTER') %}
+        <a href="{{ path('post_job_form') }}">Post Job</a>
+    {% endif %}
+    {% if is_granted('ROLE_MODERATOR') %}
+        {% set pending = unread_notifications_count() %}
+        <a href="{{ path('moderator_queue') }}">Moderator Queue{% if pending > 0 %} ({{ pending }}){% endif %}</a>
+    {% endif %}
+    <span class="muted">{% if app.user %}Logged in as {{ app.user.userIdentifier }}{% endif %}</span>
+    {% if app.user %}
+        <a href="{{ path('app_logout') }}">Logout</a>
+    {% else %}
+        <a href="{{ path('app_login') }}">Login</a>
+    {% endif %}
+    <a href="#" onclick="fetch('/_fetch', {method: 'POST'}).then(()=>location.reload())"></a>
+    {% block nav_extra %}{% endblock %}
+    <hr/>
+</nav>
+
+{% for type, messages in app.flashes %}
+    {% for message in messages %}
+        <div class="flash-{{ type }}">{{ message }}</div>
+    {% endfor %}
+{% endfor %}
+
+<main>
+    {% block body %}{% endblock %}
+    {% block scripts %}{% endblock %}
+</main>
+</body>
+</html>

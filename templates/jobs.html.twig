@@ -1,0 +1,271 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Jobs · Job Board{% endblock %}
+
+{% block body %}
+<h1>Available Jobs</h1>
+
+<h2>Internal</h2>
+{% if internal is empty %}
+    <p class="muted">No internal jobs yet.</p>
+{% else %}
+    {% for job in internal %}
+        <div class="card">
+            <div class="job-header">
+                <h3><a href="{{ path('job_show', {id: job.id}) }}">{{ job.title }}</a></h3>
+                <span class="company-badge internal-badge">Internal</span>
+            </div>
+            
+            <div class="job-meta">
+                <span class="meta-item">
+                    <i class="fas fa-calendar"></i> Posted {{ job.createdAt|date('Y-m-d') }}
+                </span>
+                <span class="meta-item">
+                    <i class="fas fa-user"></i> {{ job.posterEmail ?? 'Anonymous' }}
+                </span>
+            </div>
+            
+            <div class="job-description">
+                <p>{{ job.description|striptags|u.truncate(300, '…') }}</p>
+            </div>
+            
+            <div class="job-footer">
+                <div class="muted">
+                    Status: <span class="status-badge status-{{ job.status|lower }}">{{ job.status|title }}</span>
+                </div>
+                <a href="{{ path('job_show', {id: job.id}) }}" class="btn btn-primary">View Details</a>
+            </div>
+        </div>
+    {% endfor %}
+{% endif %}
+
+<h2>External</h2>
+{% if external is empty %}
+    <p class="muted">No external jobs fetched yet.</p>
+{% else %}
+    {% for job in external %}
+        <div class="card">
+            <div class="job-header">
+                <h3><a href="{{ path('external_redirect', {externalId: job.externalId}) }}">{{ job.title }}</a></h3>
+                {% if job.subcompany %}
+                    <span class="company-badge">{{ job.subcompany }}</span>
+                {% endif %}
+            </div>
+            
+            <div class="job-meta">
+                {% if job.office %}
+                    <span class="meta-item">
+                        <i class="fas fa-map-marker-alt"></i> {{ job.office }}
+                    </span>
+                {% endif %}
+                
+                {% if job.department %}
+                    <span class="meta-item">
+                        <i class="fas fa-building"></i> {{ job.department }}
+                    </span>
+                {% endif %}
+                
+                {% if job.employmentType %}
+                    <span class="meta-item">
+                        <i class="fas fa-briefcase"></i> {{ job.employmentType|title }}
+                    </span>
+                {% endif %}
+                
+                {% if job.schedule %}
+                    <span class="meta-item">
+                        <i class="fas fa-clock"></i> {{ job.schedule|title }}
+                    </span>
+                {% endif %}
+            </div>
+            
+            {% if job.seniority or job.yearsOfExperience %}
+                <div class="job-requirements">
+                    {% if job.seniority %}
+                        <span class="requirement-badge">{{ job.seniority|title }}</span>
+                    {% endif %}
+                    {% if job.yearsOfExperience %}
+                        <span class="requirement-badge">{{ job.yearsOfExperience }} years</span>
+                    {% endif %}
+                </div>
+            {% endif %}
+            
+            {% if job.keywords %}
+                <div class="job-keywords">
+                    {% for keyword in job.keywords|split(',') %}
+                        <span class="keyword-tag">{{ keyword|trim }}</span>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            
+            <div class="job-description">
+                <p>{{ job.description|striptags|u.truncate(300, '…') }}</p>
+            </div>
+            
+            <div class="job-footer">
+                <div class="muted">
+                    {% if job.createdAt %}
+                        Posted {{ job.createdAt|date('Y-m-d') }}
+                    {% endif %}
+                    • Fetched {{ job.fetchedAt|date('Y-m-d H:i') }}
+                </div>
+                <a href="{{ path('external_redirect', {externalId: job.externalId}) }}" class="btn btn-primary">Apply Now</a>
+            </div>
+        </div>
+    {% endfor %}
+{% endif %}
+
+<style>
+.job-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+}
+
+.company-badge {
+    background: #007bff;
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.internal-badge {
+    background: #28a745;
+}
+
+.job-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #6c757d;
+    font-size: 0.875rem;
+}
+
+.meta-item i {
+    color: #007bff;
+    width: 16px;
+}
+
+.job-requirements {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.requirement-badge {
+    background: #e9ecef;
+    color: #495057;
+    padding: 0.25rem 0.75rem;
+    border-radius: 15px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.job-keywords {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.keyword-tag {
+    background: #f8f9fa;
+    color: #6c757d;
+    padding: 0.25rem 0.5rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    border: 1px solid #dee2e6;
+}
+
+.job-description {
+    margin-bottom: 1rem;
+}
+
+.job-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid #dee2e6;
+    padding-top: 1rem;
+}
+
+.status-badge {
+    padding: 0.25rem 0.5rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.status-pending {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.status-approved {
+    background: #d4edda;
+    color: #155724;
+}
+
+.status-rejected {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.btn {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    text-decoration: none;
+    border-radius: 0.25rem;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.btn-primary {
+    background: #007bff;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #0056b3;
+    color: white;
+}
+
+.card {
+    border: 1px solid #dee2e6;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    background: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.card h3 {
+    margin: 0 0 0.5rem 0;
+}
+
+.card h3 a {
+    color: #212529;
+    text-decoration: none;
+}
+
+.card h3 a:hover {
+    color: #007bff;
+}
+
+.muted {
+    color: #6c757d;
+    font-size: 0.875rem;
+}
+</style>
+{% endblock %}
+
+

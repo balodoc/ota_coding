@@ -1,0 +1,25 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Moderator Queue · Job Board{% endblock %}
+
+{% block body %}
+<h1>Moderator Queue</h1>
+
+{% if notifications is empty %}
+    <p class="muted">No notifications.</p>
+{% else %}
+    {% for n in notifications %}
+        {% set p = n.payload %}
+        <div class="card">
+            <div class="muted">{{ n.type }} · {{ n.createdAt|date('Y-m-d H:i') }}</div>
+            <h3>{{ p.title }}</h3>
+            <p>{{ p.description }}</p>
+            <div>
+                <a href="{{ path('moderator_job_show', {id: p.job_id}) }}">View job</a>
+            </div>
+        </div>
+    {% endfor %}
+{% endif %}
+{% endblock %}
+
+
